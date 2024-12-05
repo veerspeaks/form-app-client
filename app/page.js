@@ -96,7 +96,7 @@ export default function CreateForm() {
       const form = { title, headerImage, questions };
       console.log(form);
       const res = await axios.post('https://form-app-server-dlxy.onrender.com/api/forms', form);
-      const formLink = `http://localhost:3000/fill-form/${res.data.id}`;
+      const formLink = `https://form-app-client-woad.vercel.app/fill-form/${res.data.id}`;
       
       // Show toast with form link
       setToast({
