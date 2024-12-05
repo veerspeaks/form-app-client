@@ -20,11 +20,11 @@ export default function CategorizeQuestion({ question, updateQuestion }) {
                 type="text"
                 value={category}
                 onChange={(e) => {
-                  const updatedCategories = [...question.categorize.categories];
-                  updatedCategories[index] = e.target.value;
+                  const updatedCategories = [...question.categorize.categories]; // Create a copy of the categories array
+                  updatedCategories[index] = e.target.value; // add the new value to the array
                   updateQuestion('categorize', {
                     ...question.categorize,
-                    categories: updatedCategories
+                    categories: updatedCategories // update the categories array with the new value
                   });
                 }}
                 placeholder="Enter category"
@@ -32,10 +32,10 @@ export default function CategorizeQuestion({ question, updateQuestion }) {
               />
               <button
                 onClick={() => {
-                  const updatedCategories = question.categorize.categories.filter((_, i) => i !== index);
+                  const updatedCategories = question.categorize.categories.filter((_, i) => i !== index); // create a new array without the category that is being removed
                   updateQuestion('categorize', {
                     ...question.categorize,
-                    categories: updatedCategories
+                    categories: updatedCategories // update the categories array with the new array
                   });
                 }}
                 className="text-red-500"
@@ -74,7 +74,7 @@ export default function CategorizeQuestion({ question, updateQuestion }) {
                   updatedOptions[index] = e.target.value;
                   updateQuestion('categorize', {
                     ...question.categorize,
-                    options: updatedOptions
+                    options: updatedOptions // update the options array with the new array
                   });
                 }}
                 placeholder="Enter item"
@@ -82,10 +82,10 @@ export default function CategorizeQuestion({ question, updateQuestion }) {
               />
               <button
                 onClick={() => {
-                  const updatedOptions = question.categorize.options.filter((_, i) => i !== index);
+                  const updatedOptions = question.categorize.options.filter((_, i) => i !== index); // create a new array without the option that is being removed
                   updateQuestion('categorize', {
                     ...question.categorize,
-                    options: updatedOptions
+                    options: updatedOptions // update the options array with the new array
                   });
                 }}
                 className="text-red-500"

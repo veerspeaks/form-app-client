@@ -22,18 +22,18 @@ import DroppableContainer from './DroppableContainer';
 export default function CategorizeResponse({ question, answer, setAnswer }) {
   // Initialize state for categories
   const initialCategories = {
-    unassigned: [...question.categorize.options],
+    unassigned: [...question.categorize.options], // copy the options array to the unassigned category
   };
 
   question.categorize.categories.forEach((category) => {
-    initialCategories[category] = [];
+    initialCategories[category] = []; // create an empty array for each category
   });
 
-  const [categories, setCategories] = useState(initialCategories);
-  const [activeId, setActiveId] = useState(null);
+  const [categories, setCategories] = useState(initialCategories); // initialize the categories state with the initialCategories
+  const [activeId, setActiveId] = useState(null); // initialize the activeId state with null
 
   // Initialize sensors
-  const sensors = useSensors(
+  const sensors = useSensors( // initialize the sensors with the PointerSensor and KeyboardSensor
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -42,9 +42,9 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
 
   // Helper function to find the container an item belongs to
   const findContainer = (id) => {
-    for (const [containerId, items] of Object.entries(categories)) {
-      if (items.includes(id)) {
-        return containerId;
+    for (const [containerId, items] of Object.entries(categories)) { // iterate over the categories object
+      if (items.includes(id)) { // check if the item is in the category
+        return containerId; // return the containerId if the item is in the category
       }
     }
     return null;
@@ -68,10 +68,10 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
     }
 
     setCategories((prev) => {
-      const activeItems = prev[activeContainer].filter(
+      const activeItems = prev[activeContainer].filter( // filter the active items in the active container
         (item) => item !== active.id
       );
-      const overItems = [...prev[overContainer], active.id];
+      const overItems = [...prev[overContainer], active.id]; // add the active item to the over container
 
       return {
         ...prev,
@@ -86,9 +86,9 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
 
     if (!over) return;
 
-    const activeContainer = findContainer(active.id);
-    const overId = over.id;
-    const overContainer = categories[overId] ? overId : findContainer(overId);
+    const activeContainer = findContainer(active.id); // find the container the active item belongs to
+    const overId = over.id; // get the id of the over item
+    const overContainer = categories[overId] ? overId : findContainer(overId); // get the container the over item belongs to
 
     if (!activeContainer || !overContainer) {
       return;
@@ -97,10 +97,10 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
     if (activeContainer !== overContainer) {
       // Item moved to a different container
       setCategories((prev) => {
-        const activeItems = prev[activeContainer].filter(
+        const activeItems = prev[activeContainer].filter( // filter the active items in the active container
           (item) => item !== active.id
         );
-        const overItems = [...prev[overContainer], active.id];
+        const overItems = [...prev[overContainer], active.id]; // add the active item to the over container
 
         return {
           ...prev,
@@ -111,13 +111,13 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
     } else {
       // Item moved within the same container
       const items = categories[activeContainer];
-      const oldIndex = items.indexOf(active.id);
-      const newIndex = items.indexOf(over.id);
+      const oldIndex = items.indexOf(active.id); // get the index of the active item
+      const newIndex = items.indexOf(over.id); // get the index of the over item
 
       if (oldIndex !== newIndex) {
         setCategories((prev) => ({
           ...prev,
-          [activeContainer]: arrayMove(items, oldIndex, newIndex),
+          [activeContainer]: arrayMove(items, oldIndex, newIndex), // move the active item to the new index
         }));
       }
     }
@@ -127,7 +127,7 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
     Object.keys(categories).forEach((category) => {
       if (category !== 'unassigned') {
         categories[category].forEach((item) => {
-          newAnswer[item] = category;
+          newAnswer[item] = category; // add the item to the new answer object with the category as the value
         });
       }
     });
@@ -145,8 +145,8 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
       {/* Unassigned Options */}
       <div className="flex mb-6 justify-center">
         <SortableContext
-          items={categories['unassigned']}
-          strategy={horizontalListSortingStrategy}
+          items={categories['unassigned']} // get the unassigned items
+          strategy={horizontalListSortingStrategy} // use the horizontal list sorting strategy
         >
           <DroppableContainer id="unassigned" title="Unassigned Options">
             <div className="flex flex-wrap gap-2">
@@ -165,8 +165,8 @@ export default function CategorizeResponse({ question, answer, setAnswer }) {
         {question.categorize.categories.map((category) => (
           <SortableContext
             key={category}
-            items={categories[category]}
-            strategy={verticalListSortingStrategy}
+            items={categories[category]} // get the items in the category
+            strategy={verticalListSortingStrategy} // use the vertical list sorting strategy
           >
             <DroppableContainer id={category} title={category}>
               {categories[category].map((item) => (
