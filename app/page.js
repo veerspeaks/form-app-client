@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
-import CategorizeQuestion from '../components/CategorizeQuestion'
-import ClozeQuestion from '../components/ClozeQuestion';
-import ComprehensionQuestion from '../components/ComprehensionQuestion';
-import Toast from '../components/Toast';
+import CategorizeQuestion from './components/CategorizeQuestion'
+import ClozeQuestion from './components/ClozeQuestion';
+import ComprehensionQuestion from './components/ComprehensionQuestion';
+import Toast from './components/Toast';
 
 // Reusable component for image upload with enhanced UI
 function ImageUpload({ onUpload, label }) {
