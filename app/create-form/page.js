@@ -55,6 +55,27 @@ export default function CreateForm() {
   const [headerImage, setHeaderImage] = useState('');
   const [questions, setQuestions] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', link: '' });
+  const [errors, setErrors] = useState({ title: '', questions: [] });
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { title: '', questions: [] };
+
+    if (!title.trim()) {
+      newErrors.title = 'Form title cannot be empty';
+      isValid = false;
+    }
+
+    questions.forEach((question, index) => {
+      if (!question.prompt.trim()) {
+        newErrors.questions[index] = 'Question prompt cannot be empty';
+        isValid = false;
+      }
+    });
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const addQuestion = (type) => {
     const newQuestion = {
@@ -92,6 +113,10 @@ export default function CreateForm() {
   };
 
   const handleSaveForm = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       const form = { title, headerImage, questions };
       console.log(form);
@@ -169,8 +194,9 @@ export default function CreateForm() {
               placeholder="Enter an engaging title for your form"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+              className={`w-full px-4 py-3 rounded-lg border ${errors.title ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900`}
             />
+            {errors.title && <span className="text-red-500 text-sm">{errors.title}</span>}
           </div>
 
           {/* Header Image Upload */}
@@ -230,9 +256,10 @@ export default function CreateForm() {
                     placeholder="Enter your question here..."
                     value={question.prompt}
                     onChange={(e) => updateQuestion(index, 'prompt', e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                    className={`w-full px-4 py-3 rounded-lg border ${errors.questions[index] ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900`}
                     rows={3}
                   />
+                  {errors.questions[index] && <span className="text-red-500 text-sm">{errors.questions[index]}</span>}
                 </div>
 
                 {/* Question Image */}
