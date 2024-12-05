@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
-import CategorizeQuestion from './components/CategorizeQuestion'
-import ClozeQuestion from './components/ClozeQuestion';
-import ComprehensionQuestion from './components/ComprehensionQuestion';
-import Toast from './components/Toast';
+import CategorizeQuestion from '../components/CategorizeQuestion'
+import ClozeQuestion from '../components/ClozeQuestion';
+import ComprehensionQuestion from '../components/ComprehensionQuestion';
+import Toast from '../components/Toast';
 
 // Reusable component for image upload with enhanced UI
 function ImageUpload({ onUpload, label }) {
@@ -202,7 +202,7 @@ export default function CreateForm() {
           {/* Header Image Upload */}
           <ImageUpload
             onUpload={(e) => handleImageUpload(e, setHeaderImage)}
-            label="Header Image"
+            label="Header Image (First image upload may take longer time)"
           />
           {headerImage && (
             <div className="mt-4 relative rounded-lg overflow-hidden shadow-lg">

@@ -202,7 +202,7 @@ export default function CreateForm() {
           {/* Header Image Upload */}
           <ImageUpload
             onUpload={(e) => handleImageUpload(e, setHeaderImage)}
-            label="Header Image"
+            label="Header Image (First image upload may take longer time)"
           />
           {headerImage && (
             <div className="mt-4 relative rounded-lg overflow-hidden shadow-lg">
