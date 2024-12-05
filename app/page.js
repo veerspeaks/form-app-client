@@ -1,101 +1,304 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import axios from 'axios';
+import Image from 'next/image';
+import CategorizeQuestion from './components/CategorizeQuestion';
+import ClozeQuestion from './components/ClozeQuestion';
+import ComprehensionQuestion from './components/ComprehensionQuestion';
+import Toast from './components/Toast';
+
+// Reusable component for image upload with enhanced UI
+function ImageUpload({ onUpload, label }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpload = async (e) => {
+    setIsLoading(true);
+    await onUpload(e);
+    setIsLoading(false);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="mb-6">
+      <label className="block mb-2 text-gray-700 font-medium">{label}</label>
+      <div className="relative">
+        <input
+          type="file"
+          onChange={handleUpload}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          disabled={isLoading}
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors duration-300">
+          <div className="text-gray-500">
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-2">Uploading...</span>
+              </div>
+            ) : (
+              <>
+                <svg className="mx-auto h-12 w-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <p>Drag and drop an image, or click to select</p>
+              </>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </div>
+    </div>
+  );
+}
+
+export default function CreateForm() {
+  const [title, setTitle] = useState('');
+  const [headerImage, setHeaderImage] = useState('');
+  const [questions, setQuestions] = useState([]);
+  const [toast, setToast] = useState({ show: false, message: '', link: '' });
+
+  const addQuestion = (type) => {
+    const newQuestion = {
+      type,
+      prompt: '',
+      image: ''
+    };
+
+    // Initialize specific question type fields
+    switch (type) {
+      case 'Categorize':
+        newQuestion.categorize = {
+          categories: [],
+          options: []
+        };
+        break;
+      case 'Cloze':
+        newQuestion.cloze = {
+          cloze: [{
+            sentence: '',
+            options: []
+          }]
+        };
+        break;
+      case 'Comprehension':
+        newQuestion.comprehension = {
+          comprehension: '',
+          comprehension_questions: [],
+          comprehension_options: []
+        };
+        break;
+    }
+
+    setQuestions([...questions, newQuestion]);
+  };
+
+  const handleSaveForm = async () => {
+    try {
+      const form = { title, headerImage, questions };
+      console.log(form);
+      const res = await axios.post('https://form-app-server-dlxy.onrender.com/api/forms', form);
+      const formLink = `http://localhost:3000/fill-form/${res.data.id}`;
+      
+      // Show toast with form link
+      setToast({
+        show: true,
+        message: 'Form created successfully!',
+        link: formLink
+      });
+
+      // Automatically hide toast after 5 seconds
+      setTimeout(() => {
+        setToast({ show: false, message: '', link: '' });
+      }, 5000);
+
+    } catch (error) {
+      console.error('Error saving form:', error);
+      alert('Error saving form');
+    }
+  };
+
+  const handleImageUpload = async (e, setImage) => {
+    try {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const res = await axios.post('https://form-app-server-dlxy.onrender.com/api/forms/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setImage(res.data.url);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image');
+    }
+  };
+
+  const updateQuestion = (index, field, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index] = {
+      ...updatedQuestions[index],
+      [field]: value
+    };
+    setQuestions(updatedQuestions);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-visible">
+      {/* Toast notification */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          link={toast.link}
+          onClose={() => setToast({ show: false, message: '', link: '' })}
+        />
+      )}
+
+      <div className="max-w-4xl mx-auto z-40">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 transform hover:scale-[1.01] transition-transform duration-300">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Create a New Form
+          </h1>
+
+          {/* Form Title Input */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Form Title</label>
+            <input
+              type="text"
+              placeholder="Enter an engaging title for your form"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+            />
+          </div>
+
+          {/* Header Image Upload */}
+          <ImageUpload
+            onUpload={(e) => handleImageUpload(e, setHeaderImage)}
+            label="Header Image"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          {headerImage && (
+            <div className="mt-4 relative rounded-lg overflow-hidden shadow-lg">
+              <Image
+                src={headerImage}
+                alt="Header"
+                width={400}
+                height={200}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Questions List */}
+        <div className="space-y-6">
+          {questions.map((question, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-2xl shadow-lg p-6 transform hover:scale-[1.01] transition-all duration-300"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center space-x-4">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold">
+                    {index + 1}
+                  </span>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {question.type}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => {
+                    const updatedQuestions = questions.filter((_, i) => i !== index);
+                    setQuestions(updatedQuestions);
+                  }}
+                  className="text-red-500 hover:text-red-700 flex items-center space-x-1 transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  <span>Delete</span>
+                </button>
+              </div>
+
+              {/* Question Content */}
+              <div className="space-y-6">
+                {/* Question Prompt */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Question Prompt</label>
+                  <textarea
+                    placeholder="Enter your question here..."
+                    value={question.prompt}
+                    onChange={(e) => updateQuestion(index, 'prompt', e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                    rows={3}
+                  />
+                </div>
+
+                {/* Question Image */}
+                <ImageUpload
+                  onUpload={(e) => handleImageUpload(e, (url) => updateQuestion(index, 'image', url))}
+                  label="Question Image (Optional)"
+                />
+                {question.image && (
+                  <div className="mt-4 relative rounded-lg overflow-hidden shadow-md">
+                    <Image
+                      src={question.image}
+                      alt="Question"
+                      width={300}
+                      height={200}
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Question Type Specific Components */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  {question.type === 'Categorize' && (
+                    <CategorizeQuestion
+                      question={question}
+                      updateQuestion={(field, value) => updateQuestion(index, field, value)}
+                    />
+                  )}
+                  {question.type === 'Cloze' && (
+                    <ClozeQuestion
+                      question={question}
+                      updateQuestion={(field, value) => updateQuestion(index, field, value)}
+                    />
+                  )}
+                  {question.type === 'Comprehension' && (
+                    <ComprehensionQuestion
+                      question={question}
+                      updateQuestion={(field, value) => updateQuestion(index, field, value)}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Add Question Buttons */}
+        <div className="flex flex-wrap gap-4 my-8">
+          {['Categorize', 'Cloze', 'Comprehension'].map((type) => (
+            <button
+              key={type}
+              onClick={() => addQuestion(type)}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              Add {type} Question
+            </button>
+          ))}
+        </div>
+
+        {/* Save Form Button */}
+        <button
+          onClick={handleSaveForm}
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-xl font-medium text-lg hover:from-green-600 hover:to-emerald-700 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl mb-8"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Save Form
+        </button>
+      </div>
     </div>
   );
 }

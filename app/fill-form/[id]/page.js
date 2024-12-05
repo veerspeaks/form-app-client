@@ -19,7 +19,7 @@ export default function FillForm() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/api/forms/${formId}`)
+      .get(`https://form-app-server-dlxy.onrender.com/api/forms/${formId}`)
       .then((res) => {
         setForm(res.data);
         setAnswers(new Array(res.data.questions.length).fill([]));
@@ -33,7 +33,7 @@ export default function FillForm() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`http://localhost:4000/api/forms/${formId}/responses`, {
+      await axios.post(`https://form-app-server-dlxy.onrender.com/api/forms/${formId}/responses`, {
         answers,
       });
       setSubmitted(true);

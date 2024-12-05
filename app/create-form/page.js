@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
-import CategorizeQuestion from '../components/CategorizeQuestion';
+import CategorizeQuestion from '../components/CategorizeQuestion'
 import ClozeQuestion from '../components/ClozeQuestion';
 import ComprehensionQuestion from '../components/ComprehensionQuestion';
 import Toast from '../components/Toast';
@@ -95,7 +95,7 @@ export default function CreateForm() {
     try {
       const form = { title, headerImage, questions };
       console.log(form);
-      const res = await axios.post('http://localhost:4000/api/forms', form);
+      const res = await axios.post('https://form-app-server-dlxy.onrender.com/api/forms', form);
       const formLink = `http://localhost:3000/fill-form/${res.data.id}`;
       
       // Show toast with form link
@@ -124,7 +124,7 @@ export default function CreateForm() {
       const formData = new FormData();
       formData.append('image', file);
 
-      const res = await axios.post('http://localhost:4000/api/forms/upload', formData, {
+      const res = await axios.post('https://form-app-server-dlxy.onrender.com/api/forms/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setImage(res.data.url);
